@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 import requests
 
 app = FastAPI()
@@ -14,6 +14,8 @@ def is_prime(n: int) -> bool:
 
 #Function to check if a number is perfect
 def is_perfect(n: int) -> bool:
+    if n <= 0:  # ✅ Ensures 0 is NOT classified as a perfect number
+        return False
     return sum(i for i in range(1, n) if n % i == 0) == n
 
 #Function to check if a number is an Armstrong number
@@ -34,9 +36,9 @@ def get_fun_fact(n: int) -> str:
 #API Endpoint to Classify a Number
 @app.get("/api/classify-number")
 async def classify_number(number: str = Query(..., description="The number to classify")):
-    #Check if input is a valid integer
+    #Ensure input is a valid integer
     if not number.lstrip('-').isdigit():  # Allows negative numbers
-        return {"number": number, "error": True}  # ✅ Correct 400 response format
+        raise HTTPException(status_code=400, detail={"number": number, "error": True})
 
     num = int(number)  # Convert safely
 
@@ -59,5 +61,4 @@ async def classify_number(number: str = Query(..., description="The number to cl
         "digit_sum": digit_sum,
         "fun_fact": fun_fact
     }
-
 
