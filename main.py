@@ -14,12 +14,14 @@ def is_prime(n: int) -> bool:
 
 #Function to check if a number is perfect
 def is_perfect(n: int) -> bool:
-    if n <= 0:  # ✅ Ensures 0 is NOT classified as a perfect number
+    if n <= 0:  #Ensures 0 and negative numbers are NOT classified as perfect
         return False
     return sum(i for i in range(1, n) if n % i == 0) == n
 
 #Function to check if a number is an Armstrong number
 def is_armstrong(n: int) -> bool:
+    if n == 0:  #Ensures 0 is NOT classified as an Armstrong number
+        return False
     digits = [int(d) for d in str(abs(n))]  # Handle negative numbers
     power = len(digits)
     return sum(d ** power for d in digits) == abs(n)
@@ -48,7 +50,11 @@ async def classify_number(number: str = Query(..., description="The number to cl
     armstrong = is_armstrong(num)
     digit_sum = sum(int(d) for d in str(abs(num)))  # Handle negatives properly
     parity = "odd" if num % 2 else "even"
-    properties = ["armstrong", parity] if armstrong else [parity]
+    
+    #Ensure "armstrong" is NOT included for 0
+    properties = [parity]
+    if armstrong and num != 0:
+        properties.insert(0, "armstrong")
 
     #Fetch fun fact
     fun_fact = get_fun_fact(num)
@@ -61,4 +67,5 @@ async def classify_number(number: str = Query(..., description="The number to cl
         "digit_sum": digit_sum,
         "fun_fact": fun_fact
     }
+
 
