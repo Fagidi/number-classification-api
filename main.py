@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Query
 import requests
+from fastapi.responses import JSONResponse  #Import JSONResponse for correct error handling
 
 app = FastAPI()
 
@@ -35,12 +36,12 @@ def get_fun_fact(n: int) -> str:
     except:
         return "Could not retrieve fun fact."
 
-# API Endpoint to Classify a Number
+#API Endpoint to Classify a Number
 @app.get("/api/classify-number")
 async def classify_number(number: str = Query(..., description="The number to classify")):
     #Ensure input is a valid integer
     if not number.lstrip('-').isdigit():  # Allows negative numbers
-        return {"number": number, "error": True}, 400  # Returns JSON directly with HTTP 400
+        return JSONResponse(status_code=400, content={"number": number, "error": True})  # Correct HTTP 400 response
 
     num = int(number)  # Convert safely
 
@@ -67,4 +68,5 @@ async def classify_number(number: str = Query(..., description="The number to cl
         "digit_sum": digit_sum,
         "fun_fact": fun_fact
     }
+
 
