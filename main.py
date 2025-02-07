@@ -18,9 +18,9 @@ def is_perfect(n: int) -> bool:
         return False
     return sum(i for i in range(1, n) if n % i == 0) == n
 
-# Function to check if a number is an Armstrong number
+#Function to check if a number is an Armstrong number
 def is_armstrong(n: int) -> bool:
-    if n == 0:  # Ensures 0 is NOT classified as an Armstrong number
+    if n == 0:  #Ensures 0 is NOT classified as an Armstrong number
         return False
     digits = [int(d) for d in str(abs(n))]  # Handle negative numbers
     power = len(digits)
@@ -38,12 +38,12 @@ def get_fun_fact(n: int) -> str:
 #API Endpoint to Classify a Number
 @app.get("/api/classify-number")
 async def classify_number(number: str = Query(..., description="The number to classify")):
-    # Ensure input is a valid integer
+    #Ensure input is a valid integer
     if not number.lstrip('-').isdigit():  # Allows negative numbers
-        return {
-            "number": number,  # Includes invalid input
-            "error": True
-        }, 400  #Returns HTTP 400 Bad Request
+        raise HTTPException(
+            status_code=400,
+            detail={"number": number, "error": True}  # ✅ Ensures proper HTTP 400 response
+        )
 
     num = int(number)  # Convert safely
 
