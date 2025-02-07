@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 import requests
 
 app = FastAPI()
 
-# Check if a number is prime
+# ✅ Function to check if a number is prime
 def is_prime(n: int) -> bool:
     if n < 2:
         return False
@@ -12,17 +12,17 @@ def is_prime(n: int) -> bool:
             return False
     return True
 
-# Check if a number is perfect
+# Function to check if a number is perfect
 def is_perfect(n: int) -> bool:
     return sum(i for i in range(1, n) if n % i == 0) == n
 
-# Check if a number is an Armstrong number
+# Function to check if a number is an Armstrong number
 def is_armstrong(n: int) -> bool:
     digits = [int(d) for d in str(n)]
     power = len(digits)
     return sum(d ** power for d in digits) == n
 
-# Fetch a fun fact from Numbers API
+# Function to get a fun fact from the Numbers API
 def get_fun_fact(n: int) -> str:
     url = f"http://numbersapi.com/{n}/math"
     try:
@@ -31,31 +31,32 @@ def get_fun_fact(n: int) -> str:
     except:
         return "Could not retrieve fun fact."
 
+# API Endpoint
 @app.get("/api/classify-number")
-async def classify_number(number: int = Query(..., description="The number to classify")):
-    try:
-        # Convert input to integer
-        num = int(number)
+async def classify_number(number: str = Query(..., description="The number to classify")):
+    if not number.isdigit():
+        raise HTTPException(
+            status_code=400,
+            detail={"number": number, "error": True}
+        )
 
-        # Analyze number properties
-        prime = is_prime(num)
-        perfect = is_perfect(num)
-        armstrong = is_armstrong(num)
-        digit_sum = sum(int(d) for d in str(num))
-        parity = "odd" if num % 2 else "even"
-        properties = ["armstrong", parity] if armstrong else [parity]
+    num = int(number)  # Convert to integer
 
-        # Get fun fact
-        fun_fact = get_fun_fact(num)
+    # Function calls for classification
+    prime = is_prime(num)
+    perfect = is_perfect(num)
+    armstrong = is_armstrong(num)
+    digit_sum = sum(int(d) for d in str(num))
+    parity = "odd" if num % 2 else "even"
+    properties = ["armstrong", parity] if armstrong else [parity]
 
-        # Return JSON response
-        return {
-            "number": num,
-            "is_prime": prime,
-            "is_perfect": perfect,
-            "properties": properties,
-            "digit_sum": digit_sum,
-            "fun_fact": fun_fact
-        }
-    except ValueError:
-        return {"number": str(number), "error": True}
+    fun_fact = get_fun_fact(num)
+
+    return {
+        "number": num,
+        "is_prime": prime,
+        "is_perfect": perfect,
+        "properties": properties,
+        "digit_sum": digit_sum,
+        "fun_fact": fun_fact
+    }
