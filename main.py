@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query
 import requests
 
 app = FastAPI()
 
-# ✅ Function to check if a number is prime
+# Function to check if a number is prime
 def is_prime(n: int) -> bool:
     if n < 2:
         return False
@@ -16,7 +16,7 @@ def is_prime(n: int) -> bool:
 def is_perfect(n: int) -> bool:
     return sum(i for i in range(1, n) if n % i == 0) == n
 
-# Function to check if a number is an Armstrong number
+# Function to check if a number is an Armstrong number 
 def is_armstrong(n: int) -> bool:
     digits = [int(d) for d in str(n)]
     power = len(digits)
@@ -31,18 +31,16 @@ def get_fun_fact(n: int) -> str:
     except:
         return "Could not retrieve fun fact."
 
-# API Endpoint
+# API Endpoint to Classify a Number
 @app.get("/api/classify-number")
 async def classify_number(number: str = Query(..., description="The number to classify")):
+    #Check if input is a valid integer
     if not number.isdigit():
-        raise HTTPException(
-            status_code=400,
-            detail={"number": number, "error": True}
-        )
+        return {"number": number, "error": True}  # ✅ Returns correct 400 error format
 
     num = int(number)  # Convert to integer
 
-    # Function calls for classification
+    # Get number properties
     prime = is_prime(num)
     perfect = is_perfect(num)
     armstrong = is_armstrong(num)
@@ -50,6 +48,7 @@ async def classify_number(number: str = Query(..., description="The number to cl
     parity = "odd" if num % 2 else "even"
     properties = ["armstrong", parity] if armstrong else [parity]
 
+    # Fetch fun fact
     fun_fact = get_fun_fact(num)
 
     return {
@@ -60,3 +59,5 @@ async def classify_number(number: str = Query(..., description="The number to cl
         "digit_sum": digit_sum,
         "fun_fact": fun_fact
     }
+
+
